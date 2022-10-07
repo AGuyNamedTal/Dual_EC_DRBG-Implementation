@@ -1,27 +1,66 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using TalV.ECCBackdoor.ECMath;
 using TalV.ECCBackdoor.Properties;
+using TalV.ECCBackdoor.RNG;
 using Console = Colorful.Console;
 
 namespace TalV.ECCBackdoor
 {
-    internal class Program
+    public class Program
     {
         private static void Main(string[] args)
         {
-            // todo: implement EllipticCurve.cs with math operations on points
-            // implement multiply and add
-            // implement algorithm constants
-            // Generate random point on curve Q
-            // Generate random secret e
-            // Get P = Q*e
-            // Implement DUAL_EC_DRBG
+            EllipticCurve ellipticCurve = GetCurve(args);
 
+            BigInteger secretE = 401;
+            ECRngParams rngParams = GenerateParameters(ellipticCurve, secretE);
 
+            ECRng rng = new ECRng(rngParams);
+            Console.WriteLine($"Bytes trimmed of output (X of r*Q): {ECRng.TrimmedBytes}", AppColors.Neutral);
+
+            byte[] randomOutput = GenerateRandomData(rng, 70);
+
+            ECRngStateCracker stateCracker = new ECRngStateCracker(rngParams, secretE);
+            Console.WriteLine("Finding inner state of RNG", AppColors.Attacker);
+            ECRng recoveredRng = null;
+            try
+            {
+                recoveredRng = stateCracker.Crack(randomOutput);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Cracker failed: {ex.Message}", AppColors.Error);
+                goto End;
+            }
+
+            if (recoveredRng == null)
+            {
+                Console.WriteLine("Cracker failed", AppColors.Error);
+                goto End;
+            }
+
+            byte[] rngNext = rng.Next();
+            Console.WriteLine($"RNG next:\n{rngNext.ToHex()}", AppColors.Victim);
+            byte[] recoveredRngNext = recoveredRng.Next();
+            Console.WriteLine($"Cracked RNG next:\n{recoveredRngNext.ToHex()}", AppColors.Attacker);
+            if (rngNext.SequenceEqual(recoveredRngNext))
+            {
+                Console.WriteLine("Successfully predicted next values", AppColors.Attacker);
+            }
+            else
+            {
+                Console.WriteLine($"Couldn't predict next values {AppColors.Error}");
+            }
+            End:
+            Console.WriteLine("Press any key to exit", AppColors.Neutral);
+            Console.ReadKey(true);
+        }
+        private static EllipticCurve GetCurve(string[] args)
+        {
             string json;
             if (args.Length > 0)
             {
@@ -38,59 +77,31 @@ namespace TalV.ECCBackdoor
 
             //http://www.christelbach.com/ECCalculator.aspx
 
-            EllipticCurve ellipticCurve = EllipticCurve.FromJson(json);
-            BigInteger secretE = 401;
+            return EllipticCurve.FromJson(json);
+        }
+
+        private static ECRngParams GenerateParameters(EllipticCurve curve, BigInteger secretE)
+        {
             Console.WriteLine($"Using secret e = {secretE.ToString()}", AppColors.Attacker);
 
-            ellipticCurve.TryGetPoint(1044, out BigPoint q);
-            BigPoint p = ellipticCurve.Multiply(q, secretE);
+            curve.TryGetPoint(1044, out BigPoint q);
+            BigPoint p = curve.Multiply(q, secretE);
 
             Console.WriteLine($"Using points on curve \nQ:\n{q}\nP:\n{p}\n", AppColors.Victim);
 
-            ECRngParams rngParams = new ECRngParams(ellipticCurve, p, q);
+            return new ECRngParams(curve, p, q);
+        }
 
-            ECRng rng = new ECRng(rngParams);
-            byte[] randomOutput = new byte[70];
-            Console.WriteLine($"Generating public random data of length {randomOutput.Length}", AppColors.Victim);
+        private static byte[] GenerateRandomData(ECRng rng, int length)
+        {
+            byte[] randomOutput = new byte[length];
+            Console.WriteLine($"Generating public random data of length {length}", AppColors.Victim);
             rng.Next(randomOutput);
             Console.WriteLine($"\n{randomOutput.ToHex()}\n", AppColors.Victim);
-
-            ECRngStateCracker stateCracker = new ECRngStateCracker(rngParams, secretE);
-            Console.WriteLine("Finding inner state of RNG", AppColors.Attacker);
-            ECRng recoveredRng = null;
-            try
-            {
-                recoveredRng = stateCracker.Crack(randomOutput);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Cracker failed: {ex.Message}", AppColors.Error);
-                goto end;
-            }
-
-            if (recoveredRng == null)
-            {
-                Console.WriteLine("Cracker failed", AppColors.Error);
-                goto end;
-            }
-
-            byte[] rngNext = rng.Next();
-            Console.WriteLine($"RNG next:\n{rngNext.ToHex()}", AppColors.Victim);
-            byte[] recoveredRngNext = recoveredRng.Next();
-            Console.WriteLine($"Cracked RNG next:\n{recoveredRngNext.ToHex()}", AppColors.Attacker);
-            if (rngNext.SequenceEqual(recoveredRngNext))
-            {
-                Console.WriteLine("Successfully predicted next values", AppColors.Attacker);
-            }
-            else
-            {
-                Console.WriteLine($"Couldn't predict next values {AppColors.Error}");
-            }
-            Debugger.Break();
-            end:
-            Console.WriteLine("Press any key to exit", AppColors.Neutral);
-            Console.ReadKey(true);
+            return randomOutput;
         }
+
+
 
     }
 }

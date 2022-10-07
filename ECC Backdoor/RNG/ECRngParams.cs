@@ -1,4 +1,6 @@
-﻿namespace TalV.ECCBackdoor
+﻿using TalV.ECCBackdoor.ECMath;
+
+namespace TalV.ECCBackdoor.RNG
 {
     public class ECRngParams
     {

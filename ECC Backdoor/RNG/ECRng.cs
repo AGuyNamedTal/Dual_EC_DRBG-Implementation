@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Numerics;
+using TalV.ECCBackdoor.ECMath;
 
-namespace TalV.ECCBackdoor
+namespace TalV.ECCBackdoor.RNG
 {
     /// <summary>
     /// Implementation of Dual EC DRBG
@@ -16,7 +17,7 @@ namespace TalV.ECCBackdoor
         /// In the real algorithm 2 bytes are trimmed, but for testing and debugging
         /// purposes this is set to 1 byte
         /// </summary>
-        public const int TrimmedBytes = 2;
+        public const int TrimmedBytes = 1;
 
 
         /// <summary>

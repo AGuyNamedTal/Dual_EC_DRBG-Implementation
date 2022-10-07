@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using TalV.ECCBackdoor.Properties;
 
-namespace TalV.ECCBackdoor
+namespace TalV.ECCBackdoor.ECMath
 {
     /// <summary>
     /// A function of the form y^2 = x^3 + ax + b (mod p)

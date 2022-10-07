@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Numerics;
 
-namespace TalV.ECCBackdoor
+namespace TalV.ECCBackdoor.ECMath
 {
     public static class BigIntegerHelper
     {

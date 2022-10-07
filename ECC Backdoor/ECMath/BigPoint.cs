@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace TalV.ECCBackdoor
+namespace TalV.ECCBackdoor.ECMath
 {
     public class BigPoint
     {

@@ -59,11 +59,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppColors.cs" />
-    <Compile Include="BigIntegerHelper.cs" />
-    <Compile Include="BigPoint.cs" />
-    <Compile Include="ECRngStateCracker.cs" />
-    <Compile Include="ECRngParams.cs" />
-    <Compile Include="EllipticCurve.cs" />
+    <Compile Include="ECMath\BigIntegerHelper.cs" />
+    <Compile Include="ECMath\BigPoint.cs" />
+    <Compile Include="RNG\ECRngStateCracker.cs" />
+    <Compile Include="RNG\ECRngParams.cs" />
+    <Compile Include="ECMath\EllipticCurve.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -71,7 +71,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ECRng.cs" />
+    <Compile Include="RNG\ECRng.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

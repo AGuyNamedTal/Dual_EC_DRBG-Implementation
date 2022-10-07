@@ -4,11 +4,12 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using TalV.ECCBackdoor.ECMath;
 using Console = Colorful.Console;
 
 // ReSharper disable InconsistentNaming
 
-namespace TalV.ECCBackdoor
+namespace TalV.ECCBackdoor.RNG
 {
     public class ECRngStateCracker
     {
