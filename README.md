@@ -18,4 +18,5 @@ by the secret value e.
 has the next state after generating the first "round" of bytes (used in 3a).
   * Generate the next round of bytes using the RNG we just found, if it matches the random data outputted in step 2 then we have successfully found the state of the RNG
   * "Skip" the next bytes generated until we get to the state where the "original" RNG is after step 2.
+  * NOTE: The whole guessing process is done in parallel to speed things up significantly.
 5) Generates random data using the RNG from step 2 and the RNG we recovered from the output in step 4 and checks if it matches. It should :)
