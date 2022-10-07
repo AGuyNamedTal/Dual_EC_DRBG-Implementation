@@ -1,6 +1,6 @@
 # A naive proof-of-concept C# Implementation of Dual EC DRBG
-This implementation works as a proof of concept of the whole DUAL EC DRBG backdoor.
-In here, some simple Elliptic curve math operations are implemented from scratch as well.
+This implementation works as a proof of concept of the whole Dual EC DRBG algorithm and backdoor vulnerability.
+As part of the implementation, some simple Elliptic curve math operations are implemented from scratch as well, such as point multiplication/addition on an elliptic curve modulo a prime.
 
 The program acts as a proof-of-concept and works as follows:
 1) Loads a curve from a json file in resources (or in arguments)
