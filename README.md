@@ -1,14 +1,14 @@
 # A proof-of-concept C# Implementation of Dual EC DRBG
-#### This implementation is as a proof of concept of the whole Dual EC DRBG algorithm and backdoor exploitation.
-#### As part of the implementation, some simple Elliptic curve math operations are implemented from scratch as well (altough naively and slow), such as point multiplication/addition on an elliptic curve modulo a prime.
+#### This implementation is as a proof of concept of how the Dual EC DRBG could be exploited in practice.
+#### As part of the implementation, elliptic curve math operations are implemented from scratch (altough simply and slowly), such as point multiplication/addition on an elliptic curve modulo a prime.
 
 ### The program works as follows:
-1) Loads EC curve parameters a json file located in resources (or provided by arguments). The json files is provided from https://neuromancer.sk/std/.
-2) Generate points P and Q on the curve such that Q is just a random point and, P is e*Q where e is a secret number. This essentialy creates a backdoor which allows us to get from r*Q to r*P when trying to get at the internal state of the RNG from the output in step 4 (r*P = r*(Q*e) = e*(r*Q)).
+1) Loads EC parameters a json file located in the application's resources (or provided by arguments). The json file should be formatted like the ones in https://neuromancer.sk/std/.
+2) Generates points P and Q on the curve such that Q is just a random point and, P is e*Q where e is a secret number. This essentialy creates a backdoor which allows us to get from r*Q to r*P when trying to get at the internal state of the RNG from the output in step 4 (r*P = r*(Q*e) = e*(r*Q)).
 3) Generatess random data using the Dual EC DRBG algorithm and a random seed.
   ![alt text](https://i.imgur.com/ArrOz5d.png "RNG Algorithm Explanation (Hebrew)")
  
-  * The algorithm is as follows: we put a random seed in s, a number which represents the current state of the RNG
+  * The algorithm works as follows: we put a random seed in s, a number which represents the current state of the RNG
   * When generating random data we calculate the point s*P, take the X value and call it r
   * Then, we take the X value of r*Q, trim 16 bits of that and that is our generated random output
   * To generate a new state "s", we calculate the X value of of r*P and put it into s.
