@@ -3,7 +3,7 @@
 #### As part of the implementation, elliptic curve math operations are implemented from scratch (altough simply and slowly), such as point multiplication/addition on an elliptic curve modulo a prime.
 
 ### The program works as follows:
-1) Loads EC parameters a json file located in the application's resources (or provided by arguments). The json file should be formatted like the ones in https://neuromancer.sk/std/.
+1) Loads EC parameters from a json file located in the application's resources (or provided by the proccess' arguments). The json file needs to be formatted like the ones in https://neuromancer.sk/std/.
 2) Generates points P and Q on the curve such that Q is just a random point and, P is e\*Q where e is a secret number. This essentialy creates a backdoor which allows us to get from r\*Q to r\*P when trying to get at the internal state of the RNG from the output in step 4 (r\*P = r\*(Q\*e) = e\*(r\*Q)).
 3) Generatess random data using the Dual EC DRBG algorithm and a random seed.
   ![alt text](https://i.imgur.com/ArrOz5d.png "RNG Algorithm Explanation (Hebrew)")
