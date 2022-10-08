@@ -1,10 +1,10 @@
-# A (naive) proof-of-concept C# Implementation of Dual EC DRBG
+# A proof-of-concept C# Implementation of Dual EC DRBG
 #### This implementation is as a proof of concept of the whole Dual EC DRBG algorithm and backdoor exploitation.
-#### As part of the implementation, some simple Elliptic curve math operations are implemented from scratch as well, such as point multiplication/addition on an elliptic curve modulo a prime.
+#### As part of the implementation, some simple Elliptic curve math operations are implemented from scratch as well (altough naively and slow), such as point multiplication/addition on an elliptic curve modulo a prime.
 
 ### The program works as follows:
-1) Loads a curve from a json file in resources (or in arguments)
-2) Generate points P and Q on the curve such that Q is just a random point and, P = e*Q where e is a secret number. This essentialy creates a backdoor which allows us to get from r*Q to r*P when trying to get at the internal state of the RNG from the output (in step 4).
+1) Loads EC curve parameters a json file located in resources (or provided by arguments). The json files is provided from https://neuromancer.sk/std/.
+2) Generate points P and Q on the curve such that Q is just a random point and, P is e*Q where e is a secret number. This essentialy creates a backdoor which allows us to get from r*Q to r*P when trying to get at the internal state of the RNG from the output in step 4 (r*P = r*(Q*e) = e*(r*Q)).
 3) Generatess random data using the Dual EC DRBG algorithm and a random seed.
   ![alt text](https://i.imgur.com/ArrOz5d.png "RNG Algorithm Explanation (Hebrew)")
  
