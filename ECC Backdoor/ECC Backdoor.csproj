@@ -61,7 +61,7 @@
     <Compile Include="AppColors.cs" />
     <Compile Include="ECMath\BigIntegerHelper.cs" />
     <Compile Include="ECMath\BigPoint.cs" />
-    <Compile Include="RNG\ECRngStateCracker.cs" />
+    <Compile Include="RNG\ECRngCracker.cs" />
     <Compile Include="RNG\ECRngParams.cs" />
     <Compile Include="ECMath\EllipticCurve.cs" />
     <Compile Include="Program.cs" />

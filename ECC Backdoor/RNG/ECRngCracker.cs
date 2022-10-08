@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -11,7 +12,7 @@ using Console = Colorful.Console;
 
 namespace TalV.ECCBackdoor.RNG
 {
-    public class ECRngStateCracker
+    public class ECRngCracker
     {
 
 
@@ -28,7 +29,7 @@ namespace TalV.ECCBackdoor.RNG
         /// </summary>
         /// <param name="rngParams">The parameters for the generator trying to crack</param>
         /// <param name="e">The secret value for each the point P on the curve is P=Q*e</param>
-        public ECRngStateCracker(ECRngParams rngParams, BigInteger e)
+        public ECRngCracker(ECRngParams rngParams, BigInteger e)
         {
             RngParams = rngParams;
             this.e = e;
@@ -55,43 +56,49 @@ namespace TalV.ECCBackdoor.RNG
             // if using more than 3 bytes (ECRng.TrimmedBytes > 3), change type of possibleOptionsCount to something appropriate (long, ulong, bigint)
             const int possibleOptionsCount = 1 << (ECRng.TrimmedBytes * 8); // 2^16
 
-            string FormatProgress(int done)
-            {
-                return ((double)done / possibleOptionsCount * 100).ToString(
-                     "#0.00") + "%";
-            }
-
             Console.WriteLine($"Total options to go through missing {ECRng.TrimmedBytes * 8}" +
                $" bits: {possibleOptionsCount}", AppColors.Attacker);
 
+
+            Console.WriteLine($"Starting cracking operation on {Environment.ProcessorCount} threads", AppColors.Attacker);
+            Console.Write("Searching all possibility space: ", AppColors.Attacker);
+
+            Point progressCursorPos = new Point(Console.CursorLeft, Console.CursorTop);
+            Console.WriteLine(FormatProgress(0, possibleOptionsCount, TimeSpan.Zero), AppColors.Attacker);
             CancellationTokenSource cts = new CancellationTokenSource();
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             try
             {
-                Console.WriteLine($"Starting cracking operation on {Environment.ProcessorCount} threads", AppColors.Attacker);
-                Console.Write("Searching all possibility space: ", AppColors.Attacker);
-                Point progressCursorPos = new Point(Console.CursorLeft, Console.CursorTop);
-                Console.WriteLine(FormatProgress(0), AppColors.Attacker);
+                Task.Run(() =>
+                {
+                    while (!cts.IsCancellationRequested)
+                    {
+                        UpdateTime(progressCursorPos, ref completed, possibleOptionsCount, stopwatch.Elapsed);
+                        try
+                        {
+                            Task.Delay(1000, cts.Token).Wait(cts.Token);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            break;
+                        }
+                    }
+                }, cts.Token);
+
                 Parallel.For((long)0, possibleOptionsCount + 1, new ParallelOptions
                 {
                     CancellationToken = cts.Token,
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 }, i =>
                 {
-
+                    Interlocked.Increment(ref completed);
                     ECRng rng = GuessRQ((int)i, round1, round2);
                     if (rng != null)
                     {
+                        stopwatch.Stop();
                         foundRng = rng;
                         cts.Cancel();
-                    }
-                    else
-                    {
-                        int completedLocal = Interlocked.Increment(ref completed);
-                        if (completedLocal % 50 == 0)
-                        {
-                            Console.SetCursorPosition(progressCursorPos.X, progressCursorPos.Y);
-                            Console.WriteLine(FormatProgress(completedLocal), AppColors.Attacker);
-                        }
                     }
 
                 });
@@ -103,6 +110,7 @@ namespace TalV.ECCBackdoor.RNG
             }
             finally
             {
+                stopwatch.Stop();
                 cts.Dispose();
             }
 
@@ -118,27 +126,24 @@ namespace TalV.ECCBackdoor.RNG
             return foundRng;
         }
 
-        private ECRng GuessRQ(int currentGuess, byte[] round1, byte[] round2)
+        private ECRng GuessRQ(int trimmedBitsGuess, byte[] round1, byte[] round2)
         {
             byte[] possibleBytes = new byte[_curve.FieldSize / 8];
             round1.CopyTo(possibleBytes, 0);
             byte[] trimmedBytes = new byte[ECRng.TrimmedBytes];
-            Array.Copy(BitConverter.GetBytes(currentGuess), 0, trimmedBytes, 0, ECRng.TrimmedBytes);
+            Array.Copy(BitConverter.GetBytes(trimmedBitsGuess), 0, trimmedBytes, 0, ECRng.TrimmedBytes);
             trimmedBytes.CopyTo(possibleBytes, round1.Length);
 
-
             BigInteger possibleX = BigIntegerHelper.FromBytes(possibleBytes);
-
 
             if (!_curve.TryGetPoints(possibleX, out (BigPoint, BigPoint) possibleRQs))
             {
                 return null;
             }
 
-            BigPoint[] RQs = { possibleRQs.Item1, possibleRQs.Item2 };
 
 
-            foreach (BigPoint rq in RQs)
+            foreach (BigPoint rq in new[] { possibleRQs.Item1, possibleRQs.Item2 })
             {
                 BigPoint rp = _curve.Multiply(rq, e);
                 BigInteger s = rp.X;
@@ -153,6 +158,24 @@ namespace TalV.ECCBackdoor.RNG
             return null;
         }
 
+        private static void UpdateTime(Point cursorLocation, ref int done, int possibleOptionsCount, TimeSpan elapsed)
+        {
+            Console.SetCursorPosition(cursorLocation.X, cursorLocation.Y);
+            Console.WriteLine(
+                FormatProgress(Interlocked.Add(ref done, 0), possibleOptionsCount, elapsed),
+                AppColors.Attacker);
+
+        }
+        private static string FormatProgress(int done, int possibleOptionsCount, TimeSpan elapsed)
+        {
+            double progress = (double)done / possibleOptionsCount;
+            string progressPercentage = (progress * 100).ToString("#0.00") + "%";
+            const string timespanFormat = @"hh\:mm\:ss\.ff";
+            string elapsedStr = elapsed.ToString(timespanFormat);
+            string eta = elapsed == TimeSpan.Zero ? "∞" :
+                new TimeSpan((long)(elapsed.Ticks / progress - elapsed.Ticks)).ToString(timespanFormat);
+            return $"\nProgress: {progressPercentage}\nElapsed: {elapsedStr}\nRemaining: {eta}\n";
+        }
     }
 
 }

@@ -14,9 +14,11 @@ namespace TalV.ECCBackdoor
     {
         private static void Main(string[] args)
         {
-            EllipticCurve ellipticCurve = GetCurve(args);
 
-            BigInteger secretE = 401;
+            Console.WriteLine("I am Alice the victim!", AppColors.Victim);
+            Console.WriteLine("I am Eve the attacker!", AppColors.Attacker);
+            EllipticCurve ellipticCurve = GetCurve(args);
+            BigInteger secretE = Math.Abs("I am the baddie and I am the only one that knows this yay".GetHashCode());
             ECRngParams rngParams = GenerateParameters(ellipticCurve, secretE);
 
             ECRng rng = new ECRng(rngParams);
@@ -24,22 +26,22 @@ namespace TalV.ECCBackdoor
 
             byte[] randomOutput = GenerateRandomData(rng, 70);
 
-            ECRngStateCracker stateCracker = new ECRngStateCracker(rngParams, secretE);
+            ECRngCracker cracker = new ECRngCracker(rngParams, secretE);
             Console.WriteLine("Finding inner state of RNG", AppColors.Attacker);
-            ECRng recoveredRng = null;
+            ECRng recoveredRng;
             try
             {
-                recoveredRng = stateCracker.Crack(randomOutput);
+                recoveredRng = cracker.Crack(randomOutput);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Cracker failed: {ex.Message}", AppColors.Error);
+                Console.WriteLine($"\nCracker failed: \n{ex.Message}", AppColors.Error);
                 goto End;
             }
 
             if (recoveredRng == null)
             {
-                Console.WriteLine("Cracker failed", AppColors.Error);
+                Console.WriteLine("Cracker failed.", AppColors.Error);
                 goto End;
             }
 
@@ -53,8 +55,9 @@ namespace TalV.ECCBackdoor
             }
             else
             {
-                Console.WriteLine($"Couldn't predict next values {AppColors.Error}");
+                Console.WriteLine($"Couldn't predict next values (???)", AppColors.Error);
             }
+
             End:
             Console.WriteLine("Press any key to exit", AppColors.Neutral);
             Console.ReadKey(true);
@@ -83,8 +86,17 @@ namespace TalV.ECCBackdoor
         private static ECRngParams GenerateParameters(EllipticCurve curve, BigInteger secretE)
         {
             Console.WriteLine($"Using secret e = {secretE.ToString()}", AppColors.Attacker);
+            // pick random value for q
+            Random random = new Random();
+            BigPoint q = null;
+            bool foundPoint = false;
+            while (!foundPoint)
+            {
+                int x = Math.Abs(random.Next());
+                foundPoint = curve.TryGetPoint(x, out q);
+            }
 
-            curve.TryGetPoint(1044, out BigPoint q);
+
             BigPoint p = curve.Multiply(q, secretE);
 
             Console.WriteLine($"Using points on curve \nQ:\n{q}\nP:\n{p}\n", AppColors.Victim);

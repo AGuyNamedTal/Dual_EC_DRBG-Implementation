@@ -31,8 +31,8 @@ namespace TalV.ECCBackdoor.RNG
 
         public ECRng(ECRngParams rngParams, BigInteger seed)
         {
-            _s = seed;
             _curve = rngParams.Curve;
+            _s = seed.Mod(_curve.P);
             int fieldSizeBytes = _curve.FieldSize / 8;
             OutputSize = fieldSizeBytes - TrimmedBytes /*cut off 16 bits*/;
             _p = rngParams.P;
@@ -44,6 +44,10 @@ namespace TalV.ECCBackdoor.RNG
 
         }
 
+        /// <summary>
+        /// Generates random data the size of OutputSize
+        /// </summary>
+        /// <returns></returns>
         public byte[] Next()
         {
             BigPoint sp = _curve.Multiply(_p, _s);
@@ -58,14 +62,16 @@ namespace TalV.ECCBackdoor.RNG
             }
             byte[] bytes = output.ToBytes();
 
-
-
-            // trim the final 16 bits
+            // trim the final bits
             byte[] trimmedOutput = new byte[OutputSize];
             Array.Copy(bytes, trimmedOutput, trimmedOutput.Length);
             return trimmedOutput;
         }
 
+        /// <summary>
+        /// Fills the array with random data
+        /// </summary>
+        /// <param name="output"></param>
         public void Next(byte[] output)
         {
             int totalToFill = output.Length;

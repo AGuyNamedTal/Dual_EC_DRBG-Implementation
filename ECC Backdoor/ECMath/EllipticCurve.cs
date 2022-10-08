@@ -13,11 +13,11 @@ namespace TalV.ECCBackdoor.ECMath
     public class EllipticCurve
     {
         public readonly string Name;
-
-
+        // Curve parameters:
         public readonly BigInteger A;
         public readonly BigInteger B;
         public readonly BigInteger P;
+
         /// <summary>
         /// Field size in bits
         /// </summary>
@@ -61,7 +61,7 @@ namespace TalV.ECCBackdoor.ECMath
             // Calculate m = dy/dx = dy * (dx ^ -1)
             if (point2.X > point1.X)
             {
-                BigIntegerHelper.Swap(ref point1, ref point2);
+                Swap(ref point1, ref point2);
             }
 
             BigInteger dx = point1.X - point2.X;
@@ -72,17 +72,24 @@ namespace TalV.ECCBackdoor.ECMath
             BigInteger rY = (m * (point2.X - rX) - point2.Y).Mod(P);
             return new BigPoint(rX, rY);
         }
+        public static void Swap<T>(ref T obj1, ref T obj2)
+        {
+            T temp = obj2;
+            obj2 = obj1;
+            obj1 = temp;
+        }
 
 
         public BigPoint DoublePoint(BigPoint point)
         {
             // Calculate m = (3x^2 + a)/2y = (3x^2+a) * (2y)^ -1
             BigInteger m =
-             ((3 * (point.X * point.X) + A) * ((2 * point.Y).ModInversePrime(P))).Mod(P);
+             ((3 * (point.X * point.X) + A) * (2 * point.Y).ModInversePrime(P)).Mod(P);
             BigInteger rX = (m * m - point.X - point.X).Mod(P);
             BigInteger rY = (m * (point.X - rX) - point.Y).Mod(P);
             return new BigPoint(rX, rY);
         }
+
         /// <summary>
         /// Using the double and add algorithm
         /// </summary>
@@ -95,22 +102,37 @@ namespace TalV.ECCBackdoor.ECMath
             {
                 return point;
             }
+
             if (k % 2 == 1)
             {
                 return AddPoints(point, Multiply(point, k - 1));
             }
-            return Multiply(DoublePoint(point), k / 2);
+            else
+            {
+                return Multiply(DoublePoint(point), k / 2);
+            }
         }
 
 
 
         #endregion
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>Returns true if there exists a point for the corresponding x value on the curve</returns>
         public bool TryGetY(BigInteger x, out BigInteger y)
         {
-            return (BigInteger.ModPow(x, 3, P) + ((A * x).Mod(P)) + B).Mod(P).TonelliShanksSqrt(P, out y);
+            return (BigInteger.ModPow(x, 3, P) + (A * x).Mod(P) + B).Mod(P).TonelliShanksSqrt(P, out y);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="point"></param>
+        /// <returns>Returns true if there exists a point for the corresponding x value on the curve</returns>
         public bool TryGetPoint(BigInteger x, out BigPoint point)
         {
             bool res = TryGetY(x, out BigInteger y);
@@ -122,6 +144,12 @@ namespace TalV.ECCBackdoor.ECMath
             point = new BigPoint(x, y);
             return true;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="yValues"></param>
+        /// <returns>Returns true if there exists a point for the corresponding x value on the curve</returns>
         public bool TryGetY(BigInteger x, out (BigInteger, BigInteger) yValues)
         {
             if (!TryGetY(x, out BigInteger y))
@@ -133,6 +161,12 @@ namespace TalV.ECCBackdoor.ECMath
             yValues = (y, (-y).Mod(P));
             return true;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="points"></param>
+        /// <returns>Returns true if there exists a point for the corresponding x value on the curve</returns>
         public bool TryGetPoints(BigInteger x, out (BigPoint, BigPoint) points)
         {
             bool res = TryGetY(x, out (BigInteger, BigInteger) yVals);

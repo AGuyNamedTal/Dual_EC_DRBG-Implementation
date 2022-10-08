@@ -13,50 +13,11 @@ namespace TalV.ECCBackdoor.ECMath
             {
                 hex = hex.Substring(2);
             }
-
             byte[] bytes = Enumerable.Range(0, hex.Length)
                 .Where(x => x % 2 == 0)
                 .Select(x => Convert.ToByte(hex.Substring(x, 2), 16)).Reverse()
                 .ToArray();
-            //for (int i = 0; i < bytes.Length / 2; i++)
-            //{
-            //    Swap(ref bytes[i], ref bytes[bytes.Length - i - 2]);
-            //    Swap(ref bytes[i + 1], ref bytes[bytes.Length - i - 1]);
-            //}
             return FromBytes(bytes);
-            //hex = hex.ToUpper();
-            //BigInteger HexChatToBigInt(char c)
-            //{
-            //    if (c >= '0' && c <= '9')
-            //    {
-            //        return new BigInteger((int)(c - '0'));
-            //    }
-
-            //    if (c >= 'A' && c <= 'F')
-            //    {
-            //        return new BigInteger(10 + (c - 'A'));
-            //    }
-            //    if (c >= 'a' && c <= 'f')
-            //    {
-            //        return new BigInteger(10 + (c - 'a'));
-            //    }
-
-            //    throw new FormatException();
-            //}
-
-            //BigInteger hexBase = 16;
-
-
-            //char[] hexChars = hex.ToCharArray();
-
-            //BigInteger result = 0;
-            //for (int i = 0; i < hexChars.Length; i++)
-            //{
-            //    int power = hexChars.Length - i - 1;
-            //    result += HexChatToBigInt(hexChars[i]) * BigInteger.Pow(hexBase, power);
-            //}
-
-            //return result;
         }
 
 
@@ -92,13 +53,14 @@ namespace TalV.ECCBackdoor.ECMath
             if (s == 1)
             {
                 BigInteger r = BigInteger.ModPow(n, (p + 1) / 4, p);
-                if ((r * r) % p == n)
+                if (r * r % p != n)
                 {
-                    sqrt = r;
-                    return true;
+                    return false;
                 }
 
-                return false;
+                sqrt = r;
+                return true;
+
             }
 
             BigInteger z = 1;
@@ -134,7 +96,7 @@ namespace TalV.ECCBackdoor.ECMath
                     m = i;
                 }
 
-                if ((r * r) % p == n)
+                if (r * r % p == n)
                 {
                     sqrt = r;
                     return true;
@@ -144,13 +106,6 @@ namespace TalV.ECCBackdoor.ECMath
             }
         }
 
-
-        public static void Swap<T>(ref T obj1, ref T obj2)
-        {
-            T temp = obj2;
-            obj2 = obj1;
-            obj1 = temp;
-        }
 
         public static BigInteger ModInversePrime(this BigInteger n, BigInteger p)
         {
@@ -196,6 +151,7 @@ namespace TalV.ECCBackdoor.ECMath
             BigInteger bigInt = new BigInteger(bytes);
             if (bigInt < 0)
             {
+                // add back sign bit
                 bytes = bytes.Concat(new byte[1]).ToArray();
                 return new BigInteger(bytes);
             }
