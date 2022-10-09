@@ -17,7 +17,7 @@ namespace TalV.ECCBackdoor.RNG
         /// In the real algorithm 2 bytes are trimmed, but for testing and debugging
         /// purposes this is set to 1 byte
         /// </summary>
-        public const int TrimmedBytes = 2;
+        public const int TrimmedBytes = 1;
 
 
         /// <summary>
