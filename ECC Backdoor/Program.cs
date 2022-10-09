@@ -19,6 +19,7 @@ namespace TalV.ECCBackdoor
             Console.WriteLine("I am Alice the victim!", AppColors.Victim);
             Console.WriteLine("I am Eve the attacker!", AppColors.Attacker);
             Console.WriteLine($"Bytes trimmed of output (X of r*Q): {ECRng.TrimmedBytes}", AppColors.Neutral);
+            Console.WriteLine("(You can change it in ECRng.TrimmedBytes)", AppColors.Neutral);
             Console.WriteLine("Starting in one second...", AppColors.Neutral);
             Thread.Sleep(1000);
 
