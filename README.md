@@ -31,8 +31,9 @@ has the next state after generating the first "round" of bytes.
 ### **Example for program output**
 
 #### 8 bits trimmed:
-![Dual EC Backdoor Example Output (8 bits trimmed)](https://user-images.githubusercontent.com/21063634/194746924-bbaa9e99-0e13-4b84-a061-17ddaf7b2d34.png)
+
+![Dual EC Backdoor Example Output (8 bits trimmed)](https://user-images.githubusercontent.com/21063634/194768005-3b0d9e77-10f8-4a09-a925-2c0cde9957c8.png)
 
 #### 16 bits trimmed:
 
-![Example Program Output](https://user-images.githubusercontent.com/21063634/194729075-cf3efb06-6bee-4e0a-af98-fc6fab1b95a7.png)
+![Dual EC Backdoor Example Output (16 bits trimmed)](https://user-images.githubusercontent.com/21063634/194768011-c7671eab-c577-42a2-987d-fd8f7912314e.png)
