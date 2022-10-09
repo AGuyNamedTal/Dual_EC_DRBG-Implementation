@@ -14,7 +14,7 @@ namespace TalV.ECCBackdoor
     {
         private static void Main(string[] args)
         {
-
+            Console.Title = "Dual EC DRBG Backdoor PoC";
             Console.WriteLine("I am Alice the victim!", AppColors.Victim);
             Console.WriteLine("I am Eve the attacker!", AppColors.Attacker);
             EllipticCurve ellipticCurve = GetCurve(args);
@@ -95,7 +95,6 @@ namespace TalV.ECCBackdoor
                 int x = Math.Abs(random.Next());
                 foundPoint = curve.TryGetPoint(x, out q);
             }
-
 
             BigPoint p = curve.Multiply(q, secretE);
 

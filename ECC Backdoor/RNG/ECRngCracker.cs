@@ -44,7 +44,7 @@ namespace TalV.ECCBackdoor.RNG
             {
                 throw new ArgumentException($"Not enough data, need at least {rngOutputSize * 2}bytes");
             }
-            Console.WriteLine("Splitting data into two rounds: ", AppColors.Attacker);
+            Console.WriteLine($"Splitting data into two rounds (round length is {rngOutputSize})", AppColors.Attacker);
             byte[] round1 = random.Take(rngOutputSize).ToArray();
             byte[] round2 = random.Skip(rngOutputSize).Take(rngOutputSize).ToArray();
             Console.WriteLine($"Round 1: {round1.ToHex()}", AppColors.Attacker);
