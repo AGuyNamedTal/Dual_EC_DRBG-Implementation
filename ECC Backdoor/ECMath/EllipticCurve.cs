@@ -23,8 +23,6 @@ namespace TalV.ECCBackdoor.ECMath
         /// </summary>
         public readonly int FieldSize;
 
-
-
         public EllipticCurve(BigInteger a, BigInteger b, BigInteger p, int fieldSize, string name)
         {
             A = a;

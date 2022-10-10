@@ -19,7 +19,6 @@ namespace TalV.ECCBackdoor.ECMath
             return FromBytes(bytes);
         }
 
-
         public static string ToHex(this byte[] bytes)
         {
             return BitConverter.ToString(bytes).Replace("-", "");
@@ -92,8 +91,6 @@ namespace TalV.ECCBackdoor.ECMath
                 m = i;
             }
         }
-
-
         public static BigInteger ModInversePrime(this BigInteger n, BigInteger p)
         {
             //https://en.wikipedia.org/wiki/Modular_multiplicative_inverse#Using_Euler's_theorem
@@ -110,8 +107,6 @@ namespace TalV.ECCBackdoor.ECMath
 
             return result;
         }
-
-
 
         /// <summary>
         /// Assumes number is always positive

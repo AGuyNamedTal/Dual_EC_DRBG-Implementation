@@ -15,14 +15,12 @@ namespace TalV.ECCBackdoor.RNG
     public class ECRngCracker
     {
 
-
         public readonly ECRngParams RngParams;
         /// <summary>
         /// The secret value for each the point P on the curve is P=Q*e
         /// </summary>
         public readonly BigInteger e;
         private readonly EllipticCurve _curve;
-
 
         /// <summary>
         /// 
@@ -35,7 +33,6 @@ namespace TalV.ECCBackdoor.RNG
             this.e = e;
             _curve = rngParams.Curve;
         }
-
         public ECRng Crack(byte[] random)
         {
             int rngOutputSize = _curve.FieldSize / 8 - ECRng.TrimmedBytes;
@@ -125,7 +122,6 @@ namespace TalV.ECCBackdoor.RNG
             foundRng.Next(buffer);
             return foundRng;
         }
-
         private ECRng GuessRQ(int trimmedBitsGuess, byte[] round1, byte[] round2)
         {
             byte[] possibleBytes = new byte[_curve.FieldSize / 8];
@@ -140,7 +136,6 @@ namespace TalV.ECCBackdoor.RNG
             {
                 return null;
             }
-
 
 
             foreach (BigPoint rq in new[] { possibleRQs.Item1, possibleRQs.Item2 })

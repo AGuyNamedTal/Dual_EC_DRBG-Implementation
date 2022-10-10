@@ -20,16 +20,14 @@ namespace TalV.ECCBackdoor
             Console.WriteLine("I am Eve the attacker!", AppColors.Attacker);
             Console.WriteLine($"Bytes trimmed of output (X of r*Q): {ECRng.TrimmedBytes}", AppColors.Neutral);
             Console.WriteLine("(You can change it in ECRng.TrimmedBytes)", AppColors.Neutral);
-            Console.WriteLine("Starting in one second...", AppColors.Neutral);
-            Thread.Sleep(1000);
-
+            Console.WriteLine("Starting demonstration in two seconds...", AppColors.Neutral);
+            Thread.Sleep(2000);
 
             EllipticCurve ellipticCurve = GetCurve(args);
             BigInteger secretE = Math.Abs("I am the baddie and I am the only one that knows this yay".GetHashCode());
             ECRngParams rngParams = GenerateParameters(ellipticCurve, secretE);
 
             ECRng rng = new ECRng(rngParams);
-
 
             byte[] randomOutput = GenerateRandomData(rng, 70);
 
@@ -69,6 +67,7 @@ namespace TalV.ECCBackdoor
             Console.WriteLine("Press any key to exit", AppColors.Neutral);
             Console.ReadKey(true);
         }
+
         private static EllipticCurve GetCurve(string[] args)
         {
             string json;
@@ -118,7 +117,6 @@ namespace TalV.ECCBackdoor
             Console.WriteLine($"\n{randomOutput.ToHex()}\n", AppColors.Victim);
             return randomOutput;
         }
-
 
 
     }

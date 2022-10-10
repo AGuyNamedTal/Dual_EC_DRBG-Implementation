@@ -11,14 +11,12 @@ namespace TalV.ECCBackdoor.RNG
     /// </summary>
     public class ECRng
     {
-
         /// <summary>
         /// How many bytes to trim at the end.
         /// In the real algorithm 2 bytes are trimmed, but for testing and debugging
         /// purposes this is set to 1 byte
         /// </summary>
         public const int TrimmedBytes = 1;
-
 
         /// <summary>
         /// Represents the current state of the RNG
@@ -38,11 +36,7 @@ namespace TalV.ECCBackdoor.RNG
             _p = rngParams.P;
             _q = rngParams.Q;
         }
-
-        public ECRng(ECRngParams rngParams) : this(rngParams, Environment.TickCount)
-        {
-
-        }
+        public ECRng(ECRngParams rngParams) : this(rngParams, Environment.TickCount) { }
 
         /// <summary>
         /// Generates random data the size of OutputSize

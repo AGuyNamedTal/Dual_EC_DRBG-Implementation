@@ -4,12 +4,8 @@ namespace TalV.ECCBackdoor.ECMath
 {
     public class BigPoint
     {
-
         public readonly BigInteger X;
-
         public readonly BigInteger Y;
-
-        //public static readonly BigPoint Empty = new BigPoint(0, 0);
 
         public BigPoint(BigInteger x, BigInteger y)
         {
@@ -32,7 +28,6 @@ namespace TalV.ECCBackdoor.ECMath
 
             return obj1.Equals(obj2);
         }
-
         public static bool operator !=(BigPoint obj1, BigPoint obj2)
         {
             return !(obj1 == obj2);
@@ -42,7 +37,6 @@ namespace TalV.ECCBackdoor.ECMath
         {
             return X.Equals(other.X) && Y.Equals(other.Y);
         }
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
